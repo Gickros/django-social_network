@@ -75,7 +75,9 @@ WSGI_APPLICATION = "instagram.wsgi.application"
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 import os
+
 from dotenv import load_dotenv
+
 load_dotenv()
 
 DATABASES = {
