@@ -1,9 +1,12 @@
 
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
+
 from django.utils.text import slugify
 from django.db.models import Q
 
+User=get_user_model()
 class Post(models.Model):
     title = models.CharField(max_length=100)
     desc = models.CharField(verbose_name='description', max_length=150)
