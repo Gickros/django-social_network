@@ -8,17 +8,23 @@ from django.db.models import Q
 
 User=get_user_model()
 class Post(models.Model):
+    class Status(models.TextChoices):
+        DRAFT = "draft", "Черновик"
+        PUBLISHED = "published", "Опубликовано"
+     
+
     title = models.CharField(max_length=100)
     desc = models.CharField(verbose_name='description', max_length=150)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='media/')
     created_at = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(unique=True, blank=True)
-
+    status = models.CharField(choices=Status.choices max_length=50,default=Status.D)
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
+        
 
 
 class Like(models.Model):
@@ -51,7 +57,10 @@ class Follow(models.Model):
     follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
     following = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers')
     created_at = models.DateTimeField(auto_now_add=True)
-
     class Meta:
-        unique_together = ('follower', 'following')
+    constraints = [
+        models.UniqueConstraint(fields=['follower', 'following'], name='unique_follow')
+    ]
+
+
 

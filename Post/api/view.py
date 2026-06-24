@@ -11,16 +11,14 @@ from .serializers import (
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-
-
+from .services import toogle_like
 class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
 
-    queryset = Post.objects.annotate(
-        comments_count=Count('comments'),
-        likes_count=Count('likes'),filter=Q(likes__is_active=True)
+      queryset = Post.objects.annotate(
+        comment_count=Count('comments'),
+        likes_count=Count('likes', filter=Q(likes__is_active=True))
     )
-
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
@@ -46,19 +44,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
 class LikeViewSet(viewsets.ModelViewSet):
     serializer_class = LikeSerializer
     queryset = Like.objects.all()
-    @action(detail=False,methods=['post'])
-    def toggle(self,request,pk=None):
-        user = request.user
-        post_id = request.data.get('post_id')
-
-        post = get_object_or_404(Post, pk=post_id)
-
-        like = Like.objects.filter(post=post, author=user).first()
-        if like:
-            like.is_active =not like.is_active
-            like.save()
-            
-        else:   
-            like=Like.objects.create(post=post,author=user,is_active=True)
-        serializer = self.get_serializer(like)
-        return Response(serializer.data)
+  @action(detail=False, methods=['post'])
+def toggle(self, request):
+ like=toogle_like(user,post)
