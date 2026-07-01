@@ -1,9 +1,12 @@
 import django_filters
+
 from .models import Post
 
 
-class Postfilter(django_filters.FilterSet):
-    author = django_filters.CharFilter(field_name="author", lookup_expr="icontaints")
+class PostFilter(django_filters.FilterSet):
+    author = django_filters.CharFilter(
+        field_name="author__username", lookup_expr="icontains"
+    )
     created_after = django_filters.DateTimeFilter(
         field_name="created_at", lookup_expr="gte"
     )
@@ -13,4 +16,4 @@ class Postfilter(django_filters.FilterSet):
 
     class Meta:
         model = Post
-        field = ["created_at", "author"]
+        fields = ["status", "author"]
