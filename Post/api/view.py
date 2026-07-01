@@ -4,24 +4,29 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404
+from rest_framework import generics
 
-from .models import Post, Profile, Comment, Follow, Like
+from ..models import Post, Profile, Comment, Follow, Like
 from .serializers import (
     PostSerializer,
     ProfileSerializer,
     CommentSerializer,
     FollowSerializer,
-    LikeSerializer
+    LikeSerializer,
+     RegisterSerializer
 )
 from .services import toggle_like
-from .filter.py import Post.filter
-
+from .filter import PostFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework import mixins
+from rest_framework.simplejwt.tokens
 
 class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_clases = [IsAuthenticatedOrReadOnly]
 
-    filterset_classes = PostFilter
+    filterset_class = PostFilter
     filter_backends = [
     DjangoFilterBackend,
     SearchFilter,
@@ -57,19 +62,28 @@ class ProfileViewSet(viewsets.ModelViewSet):
     )
 
 
-class LikeViewSet(viewsets.ModelViewSet):
+
+class LikeViewSet(
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     serializer_class = LikeSerializer
     queryset = Like.objects.all()
+    permission_classes = [IsAuthenticated]
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=["post"])
     def toggle(self, request):
-        user = request.user
-        post_id = request.data.get("post_id")
+        post = get_object_or_404(Post, id=request.data.get("post_id"))
 
-        post = get_object_or_404(Post, id=post_id)
-
-        like = toggle_like(user=user, post=post)
+        like = toggle_like(
+            user=request.user,
+            post=post,
+        )
 
         return Response({
             "is_active": like.is_active
         })
+
+class RegisterApiView(generisc.CreateApiView):
+    serializer_class = RegisterSerializer
+   
