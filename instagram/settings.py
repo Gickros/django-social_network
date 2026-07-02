@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     "Post",
     "rest_framework",
     "drf_spectacular",
-    ''
+    
 ]
 
 MIDDLEWARE = [

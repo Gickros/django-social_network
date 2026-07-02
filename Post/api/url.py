@@ -1,19 +1,23 @@
+from django.urls import path
 from rest_framework.routers import DefaultRouter
+
 from .views import (
-    PostViewSet,
     CommentViewSet,
-    ProfileViewSet,
     FollowViewSet,
     LikeViewSet,
+    PostViewSet,
+    ProfileViewSet,
+    RegisterApiView,
 )
-
 
 router = DefaultRouter()
 
-router.register(r"posts", PostViewSet)
-router.register(r"comments", CommentViewSet)
-router.register(r"profiles", ProfileViewSet)
-router.register(r"follows", FollowViewSet)
-router.register(r"likes", LikeViewSet)
+router.register(r"posts", PostViewSet, basename="post")
+router.register(r"comments", CommentViewSet, basename="comment")
+router.register(r"profiles", ProfileViewSet, basename="profile")
+router.register(r"follows", FollowViewSet, basename="follow")
+router.register(r"likes", LikeViewSet, basename="like")
 
-urlpatterns = router.urls
+urlpatterns = [
+    path("auth/register/", RegisterApiView.as_view(), name="register"),
+] + router.urls

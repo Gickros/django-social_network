@@ -1,3 +1,4 @@
+from .models import Like
 def toggle_like(user, post):
     like = Like.objects.filter(post=post, author=user).first()
 
