@@ -8,7 +8,7 @@ User = get_user_model()
 
 class PostSerializer(serializers.ModelSerializer):
     likes_count = serializers.IntegerField(read_only=True)
-    comments_count = serializers.IntegerField(read_only=True)
+    comment_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Post

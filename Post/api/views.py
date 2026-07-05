@@ -1,47 +1,53 @@
-from rest_framework import viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly,IsAuthenticated
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404
-from rest_framework import generics
 
-from .models import Post, Profile, Comment, Follow, Like
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics, mixins, viewsets
+from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.permissions import (
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+)
+from rest_framework.response import Response
+
+from .filter import PostFilter
+from .models import Comment, Follow, Like, Post, Profile
 from .serializers import (
-    PostSerializer,
-    ProfileSerializer,
     CommentSerializer,
     FollowSerializer,
     LikeSerializer,
-     RegisterSerializer
+    PostSerializer,
+    ProfileSerializer,
+    RegisterSerializer,
 )
 from .services import toggle_like
-from .filter import PostFilter
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework import mixins
 
 
 class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    filterset_class = PostFilter
-    filter_backends = [
-    DjangoFilterBackend,
-    SearchFilter,
-    OrderingFilter
-]
-
-    search_fields = ['created_at','author']
-
     queryset = Post.objects.annotate(
-        comment_count=Count('comments'),
-        likes_count=Count('likes', filter=Q(likes__is_active=True))
+        comment_count=Count("comments"),
+        likes_count=Count("likes", filter=Q(likes__is_active=True)),
     )
 
-def perform_create(self,serializer):
-    serializer.save(author=self.request.user)
+    filterset_class = PostFilter
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+ search_fields = [
+    "title",
+    "desc",
+    "author__username",
+]
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -59,11 +65,10 @@ class FollowViewSet(viewsets.ModelViewSet):
 class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
 
-    queryset = Profile.objects.select_related('user').annotate(
-        followers_count=Count('user__followers'),
-        following_count=Count('user__following')
+    queryset = Profile.objects.select_related("user").annotate(
+        followers_count=Count("user__followers"),
+        following_count=Count("user__following"),
     )
-
 
 
 class LikeViewSet(
@@ -83,10 +88,12 @@ class LikeViewSet(
             post=post,
         )
 
-        return Response({
-            "is_active": like.is_active
-        })
+        return Response(
+            {
+                "is_active": like.is_active,
+            }
+        )
+
 
 class RegisterApiView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
-   
