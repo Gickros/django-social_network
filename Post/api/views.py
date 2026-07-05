@@ -40,6 +40,9 @@ class PostViewSet(viewsets.ModelViewSet):
         likes_count=Count('likes', filter=Q(likes__is_active=True))
     )
 
+def perform_create(self,serializer):
+    serializer.save(author=self.request.user)
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
