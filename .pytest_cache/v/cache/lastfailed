@@ -1,0 +1,5 @@
+{
+  "Post/tests/test_views.py::test_create_post_authorized": true,
+  "Post/tests/test_views.py::test_search_posts": true,
+  "Post/tests/test_views.py::test_post_not_found": true
+}
