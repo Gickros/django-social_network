@@ -40,11 +40,7 @@ class PostViewSet(viewsets.ModelViewSet):
         OrderingFilter,
     ]
 
- search_fields = [
-    "title",
-    "desc",
-    "author__username",
-]
+    search_fields = ["title", "desc", "author__username",]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
