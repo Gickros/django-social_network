@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:17
+    container_name: postgres
+    ports:
+      - '5434:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    env_file:
+      - .env
+  web:
+    build: .
+    image: web_instagram:v1.0
+    env_file:
+      - .env
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+    volumes:
+       - .:/app
+    restart: unless-stopped
+volumes:
+  postgres_data:
